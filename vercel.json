@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/*.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/staff/bulk",             "dest": "/api/staff.js"      },
+    { "src": "/api/staff/([^/]+)",          "dest": "/api/staff.js"      },
+    { "src": "/api/staff",                  "dest": "/api/staff.js"      },
+    { "src": "/api/attendance/months",      "dest": "/api/attendance.js" },
+    { "src": "/api/attendance/bulk-present","dest": "/api/attendance.js" },
+    { "src": "/api/attendance/([^/]+)",     "dest": "/api/attendance.js" },
+    { "src": "/api/attendance",             "dest": "/api/attendance.js" },
+    { "src": "/api/savings/confirm",        "dest": "/api/savings.js"    },
+    { "src": "/api/savings/unconfirm",      "dest": "/api/savings.js"    },
+    { "src": "/api/savings",                "dest": "/api/savings.js"    },
+    { "src": "/api/loans/([^/]+)",          "dest": "/api/loans.js"      },
+    { "src": "/api/loans",                  "dest": "/api/loans.js"      },
+    { "src": "/api/commission/([^/]+)",     "dest": "/api/commission.js" },
+    { "src": "/api/commission",             "dest": "/api/commission.js" },
+    { "src": "/api/settings/holidays/([^/]+)", "dest": "/api/settings.js"},
+    { "src": "/api/settings/holidays",      "dest": "/api/settings.js"   },
+    { "src": "/api/settings/([^/]+)",       "dest": "/api/settings.js"   },
+    { "src": "/api/settings",               "dest": "/api/settings.js"   },
+    { "src": "/api/audit",                  "dest": "/api/audit.js"      },
+    { "src": "/",                           "dest": "/api/index.js"      }
+  ]
+}
