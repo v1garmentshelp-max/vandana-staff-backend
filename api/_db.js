@@ -26,6 +26,8 @@ export function camelStaff(row) {
     monthlyRecovery: Number(row.monthly_recovery),
     totalOutstanding: Number(row.total_outstanding),
     totalSavings: Number(row.total_savings),
+    daysPresent: Number(row.days_present || 0),
+    daysAbsent: Number(row.days_absent || 0),
     active: row.active,
   };
 }

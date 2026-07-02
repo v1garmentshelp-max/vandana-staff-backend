@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS staff (
   monthly_recovery  INTEGER DEFAULT 0,
   total_outstanding INTEGER DEFAULT 0,
   total_savings     INTEGER DEFAULT 0,
+  days_present      INTEGER DEFAULT 0,
+  days_absent       INTEGER DEFAULT 0,
   active            BOOLEAN DEFAULT TRUE,
   created_at        TIMESTAMPTZ DEFAULT NOW(),
   updated_at        TIMESTAMPTZ DEFAULT NOW()
