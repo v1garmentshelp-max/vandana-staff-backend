@@ -1,38 +1,109 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" }
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
   ],
   "routes": [
-    { "src": "/api/staff/bulk",             "dest": "/api/staff.js"      },
-    { "src": "/api/staff/([^/]+)",          "dest": "/api/staff.js"      },
-    { "src": "/api/staff",                  "dest": "/api/staff.js"      },
-    { "src": "/api/attendance/months",      "dest": "/api/attendance.js" },
-    { "src": "/api/attendance/bulk-present","dest": "/api/attendance.js" },
-    { "src": "/api/attendance/([^/]+)",     "dest": "/api/attendance.js" },
-    { "src": "/api/attendance",             "dest": "/api/attendance.js" },
-    { "src": "/api/savings/confirm",        "dest": "/api/savings.js"    },
-    { "src": "/api/savings/unconfirm",      "dest": "/api/savings.js"    },
-    { "src": "/api/savings",                "dest": "/api/savings.js"    },
-    { "src": "/api/loans/([^/]+)",          "dest": "/api/loans.js"      },
-    { "src": "/api/loans",                  "dest": "/api/loans.js"      },
-    { "src": "/api/commission/([^/]+)",     "dest": "/api/commission.js" },
-    { "src": "/api/commission",             "dest": "/api/commission.js" },
-    { "src": "/api/settings/holidays/([^/]+)", "dest": "/api/settings.js"},
-    { "src": "/api/settings/holidays",      "dest": "/api/settings.js"   },
-    { "src": "/api/settings/([^/]+)",       "dest": "/api/settings.js"   },
-    { "src": "/api/settings",               "dest": "/api/settings.js"   },
-    { "src": "/api/audit",                  "dest": "/api/audit.js"      },
-    { "src": "/",                           "dest": "/api/index.js"      }
+    {
+      "src": "/api/staff/bulk",
+      "dest": "/api/staff.js"
+    },
+    {
+      "src": "/api/staff/([^/]+)",
+      "dest": "/api/staff.js"
+    },
+    {
+      "src": "/api/staff",
+      "dest": "/api/staff.js"
+    },
+    {
+      "src": "/api/attendance/months",
+      "dest": "/api/attendance.js"
+    },
+    {
+      "src": "/api/attendance/bulk-present",
+      "dest": "/api/attendance.js"
+    },
+    {
+      "src": "/api/attendance/([^/]+)",
+      "dest": "/api/attendance.js"
+    },
+    {
+      "src": "/api/attendance",
+      "dest": "/api/attendance.js"
+    },
+    {
+      "src": "/api/savings/confirm",
+      "dest": "/api/savings.js"
+    },
+    {
+      "src": "/api/savings/unconfirm",
+      "dest": "/api/savings.js"
+    },
+    {
+      "src": "/api/savings",
+      "dest": "/api/savings.js"
+    },
+    {
+      "src": "/api/loans/([^/]+)",
+      "dest": "/api/loans.js"
+    },
+    {
+      "src": "/api/loans",
+      "dest": "/api/loans.js"
+    },
+    {
+      "src": "/api/commission/([^/]+)",
+      "dest": "/api/commission.js"
+    },
+    {
+      "src": "/api/commission",
+      "dest": "/api/commission.js"
+    },
+    {
+      "src": "/api/settings/holidays/([^/]+)",
+      "dest": "/api/settings.js"
+    },
+    {
+      "src": "/api/settings/holidays",
+      "dest": "/api/settings.js"
+    },
+    {
+      "src": "/api/settings/([^/]+)",
+      "dest": "/api/settings.js"
+    },
+    {
+      "src": "/api/settings",
+      "dest": "/api/settings.js"
+    },
+    {
+      "src": "/api/audit",
+      "dest": "/api/audit.js"
+    },
+    {
+      "src": "/",
+      "dest": "/api/index.js"
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
       ]
     }
   ]
