@@ -46,6 +46,19 @@ export default async function handler(req, res) {
           `UPDATE staff SET ${setClauses}, updated_at=NOW() WHERE id=$1`,
           [c.id, ...c.diffs.map(d => d.new)]
         );
+        // Sync loan fields to loans table
+        await client.query(`
+          INSERT INTO loans (staff_id, total_amount, monthly_emi, remaining)
+          SELECT id, extra_advance, monthly_recovery, total_outstanding
+          FROM staff
+          WHERE id = $1
+          ON CONFLICT (staff_id) DO UPDATE SET
+            total_amount = EXCLUDED.total_amount,
+            monthly_emi = EXCLUDED.monthly_emi,
+            remaining = EXCLUDED.remaining,
+            updated_at = NOW()`,
+          [c.id]
+        );
         updated++;
       }
 
@@ -54,21 +67,39 @@ export default async function handler(req, res) {
       if (adds.length) {
         const placeholders = [], vals = [];
         let pi = 1;
+        let tempAdded = 0;
         for (const c of adds) {
           const m = c.mapped || {};
-          const newId = c.id && c.id !== 'NEW' ? c.id : `VM${Date.now()}${added}`;
+          const newId = c.id && c.id !== 'NEW' ? c.id : `VM${Date.now()}${tempAdded}`;
+          c.generatedId = newId;
           placeholders.push(`($${pi},$${pi+1},$${pi+2},$${pi+3},$${pi+4},$${pi+5},$${pi+6},$${pi+7},$${pi+8},$${pi+9},$${pi+10},$${pi+11},$${pi+12},$${pi+13},$${pi+14},$${pi+15},$${pi+16})`);
           vals.push(newId, m.name||c.name, m.designation||'', m.branch||'', m.aadhar||'',
             m.phone||'', m.altPhone||'', m.dob||'',
             m.salary||0, m.fixedCutting||0, m.advance||0,
             m.extraAdvance||0, m.monthlyRecovery||0, m.totalOutstanding||0, m.totalSavings||0,
             m.daysPresent||0, m.daysAbsent||0);
-          pi += 17; added++;
+          pi += 17; tempAdded++;
         }
         await client.query(`
           INSERT INTO staff (id,name,designation,branch,aadhar,phone,alt_phone,dob,
             salary,fixed_cutting,advance,extra_advance,monthly_recovery,total_outstanding,total_savings,days_present,days_absent)
           VALUES ${placeholders.join(',')} ON CONFLICT (id) DO NOTHING`, vals);
+
+        for (const c of adds) {
+          await client.query(`
+            INSERT INTO loans (staff_id, total_amount, monthly_emi, remaining)
+            SELECT id, extra_advance, monthly_recovery, total_outstanding
+            FROM staff
+            WHERE id = $1
+            ON CONFLICT (staff_id) DO UPDATE SET
+              total_amount = EXCLUDED.total_amount,
+              monthly_emi = EXCLUDED.monthly_emi,
+              remaining = EXCLUDED.remaining,
+              updated_at = NOW()`,
+            [c.generatedId]
+          );
+        }
+        added = tempAdded;
       }
 
       await client.query(
@@ -94,6 +125,17 @@ export default async function handler(req, res) {
          s.extraAdvance||0,s.monthlyRecovery||0,s.totalOutstanding||0,s.totalSavings||0,
          s.daysPresent||0,s.daysAbsent||0]
       );
+      // Sync loan fields to loans table
+      await pool.query(`
+        INSERT INTO loans (staff_id, total_amount, monthly_emi, remaining)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (staff_id) DO UPDATE SET
+          total_amount = EXCLUDED.total_amount,
+          monthly_emi = EXCLUDED.monthly_emi,
+          remaining = EXCLUDED.remaining,
+          updated_at = NOW()`,
+        [rows[0].id, Number(s.extraAdvance||0), Number(s.monthlyRecovery||0), Number(s.totalOutstanding||0)]
+      );
       await addAudit(pool, rows[0].id, 'ADD_STAFF', null, null, s.name);
       return ok(res, camelStaff(rows[0]), 201);
     } catch (e) { return err(res, e.message); }
@@ -114,6 +156,17 @@ export default async function handler(req, res) {
          s.daysPresent||0,s.daysAbsent||0]
       );
       if (!rows.length) return err(res, 'Not found', 404);
+      // Sync loan fields to loans table
+      await pool.query(`
+        INSERT INTO loans (staff_id, total_amount, monthly_emi, remaining)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (staff_id) DO UPDATE SET
+          total_amount = EXCLUDED.total_amount,
+          monthly_emi = EXCLUDED.monthly_emi,
+          remaining = EXCLUDED.remaining,
+          updated_at = NOW()`,
+        [seg, Number(s.extraAdvance||0), Number(s.monthlyRecovery||0), Number(s.totalOutstanding||0)]
+      );
       await addAudit(pool, seg, 'UPDATE_STAFF', null, null, JSON.stringify(s));
       return ok(res, camelStaff(rows[0]));
     } catch (e) { return err(res, e.message); }

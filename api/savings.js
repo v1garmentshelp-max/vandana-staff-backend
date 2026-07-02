@@ -29,14 +29,16 @@ export default async function handler(req, res) {
   if (req.method === 'POST' && seg === 'confirm') {
     const { staffId, month, amount } = req.body;
     try {
-      await pool.query(
+      const { rowCount } = await pool.query(
         "INSERT INTO savings_confirmations (staff_id,month,amount) VALUES ($1,$2,$3) ON CONFLICT (staff_id,month) DO NOTHING",
         [staffId, month, amount]
       );
-      await pool.query(
-        "UPDATE staff SET total_savings=(SELECT COALESCE(SUM(amount),0) FROM savings_confirmations WHERE staff_id=$1),updated_at=NOW() WHERE id=$1",
-        [staffId]
-      );
+      if (rowCount > 0) {
+        await pool.query(
+          "UPDATE staff SET total_savings=total_savings+$2,updated_at=NOW() WHERE id=$1",
+          [staffId, amount]
+        );
+      }
       return ok(res, { ok: true });
     } catch (e) { return err(res, e.message); }
   }
@@ -45,14 +47,21 @@ export default async function handler(req, res) {
   if (req.method === 'POST' && seg === 'unconfirm') {
     const { staffId, month } = req.body;
     try {
-      await pool.query(
-        'DELETE FROM savings_confirmations WHERE staff_id=$1 AND month=$2',
+      const { rows } = await pool.query(
+        "SELECT amount FROM savings_confirmations WHERE staff_id=$1 AND month=$2",
         [staffId, month]
       );
-      await pool.query(
-        "UPDATE staff SET total_savings=(SELECT COALESCE(SUM(amount),0) FROM savings_confirmations WHERE staff_id=$1),updated_at=NOW() WHERE id=$1",
-        [staffId]
-      );
+      if (rows.length > 0) {
+        const amount = Number(rows[0].amount);
+        await pool.query(
+          'DELETE FROM savings_confirmations WHERE staff_id=$1 AND month=$2',
+          [staffId, month]
+        );
+        await pool.query(
+          "UPDATE staff SET total_savings=GREATEST(0,total_savings-$2),updated_at=NOW() WHERE id=$1",
+          [staffId, amount]
+        );
+      }
       return ok(res, { ok: true });
     } catch (e) { return err(res, e.message); }
   }
